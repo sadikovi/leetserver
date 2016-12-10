@@ -15,7 +15,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -87,3 +86,21 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# lib dependencies
+!lib/
+lib/*
+!lib/__init__.py
+
+# work folder
+!work/
+work/*
+!work/.placeholder
+
+# ignore npm and build artifacts
+node_modules/
+static/
+
+# ignore generated manifest
+MANIFEST
+!MANIFEST.in
