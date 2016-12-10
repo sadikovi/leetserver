@@ -12,7 +12,7 @@ docker build --tag leetserver .
 
 Run container with supplied environment variables:
 ```
-docker run -e AWS_SMTP_HOST=host -e AWS_SMTP_PORT=port \
+docker run -it -e AWS_SMTP_HOST=host -e AWS_SMTP_PORT=port \
   -e AWS_FROM_EMAIL_ADDRESS=email -e AWS_TO_EMAIL_ADDRESS=email \
   -e AWS_SMTP_USERNAME=username -e AWS_SMTP_PASSWORD=password \
   -e AWS_SECONDS_INTERVAL=interval leetserver

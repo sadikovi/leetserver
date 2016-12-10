@@ -118,6 +118,8 @@ def create_cli_parser():
 
 # Select random question from list of questions
 def random_question(questions):
+    if not questions:
+        return None
     return random.choice(questions)
 
 # Parse raw payload into list of question dictionaries
@@ -129,15 +131,31 @@ def parse_leetcode_questions(payload):
     return [chunk for chunk in payload["stat_status_pairs"]]
 
 def fetch_leetcode_questions():
+    payload = None
     try:
-        # perform request with timeout of 30 seconds
-        obj = urllib2.urlopen(LEETCODE_REST_URL, timeout=30)
+        # perform request with timeout of 1 minute
+        obj = urllib2.urlopen(LEETCODE_REST_URL, timeout=60)
+        payload = json.loads(obj.read())
     except StandardError as err:
         print "Error occured when fetching questions, err=%s" % err
-        return None
-    else:
-        payload = json.loads(obj.read())
-        return parse_leetcode_questions(payload)
+    return parse_leetcode_questions(payload)
+
+# Refetch questions in case of failure
+def safe_fetch_leetcode_questions():
+    # refresh interval in seconds
+    refresh_interval = 5
+    number_of_attempts = 10
+    questions = None
+    while not questions and number_of_attempts > 0:
+        questions = fetch_leetcode_questions()
+        if not questions:
+            print "Failed to fetch questions, retrying in %s seconds (left %s attempts)" % \
+                (refresh_interval, number_of_attempts)
+        number_of_attempts -= 1
+        time.sleep(refresh_interval)
+    if number_of_attempts <= 0:
+        print "Number of attempts is exhausted"
+    return questions
 
 def send_email(smtp_host, smtp_port, from_addr, to_addr, username, password, subject, html_body):
     msg = MIMEMultipart("alternative")
@@ -171,11 +189,13 @@ def main():
     if not isinstance(interval, int) and interval <= 0:
         print "Invalid interval %s" % interval
         return None
+    # All available questions
+    questions = safe_fetch_leetcode_questions()
+    print "Fetched questions %s" % len(questions)
     # Loop to sleep for interval, select random question and send it
     while True:
-        print "\n---\n"
         time.sleep(interval)
-        questions = fetch_leetcode_questions()
+        print "\n---\n"
         # only select non-paid question
         question = Question(random_question([x for x in questions if not x["paid_only"]]))
         print question.as_plain_text()
