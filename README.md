@@ -2,10 +2,12 @@
 Select random Leetcode question and send email using AWS (or any other SMTP server with TLS support)
 
 ## Install
-Build docker image either locally or on launched EC2 instance, this creates Ubuntu 14.04 with
-Python installed.
+Clone repository and build docker image on either local machine or EC2 instance, this creates
+Ubuntu 14.04 with Python installed.
 ```
-docker build --tag leetserver ./
+git clone https://github.com/sadikovi/leetserver.git
+cd leetserver
+docker build --tag leetserver .
 ```
 
 Run container with supplied environment variables:
